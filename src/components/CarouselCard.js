@@ -1,35 +1,37 @@
 import React, {Component} from 'react';
 import Carousel from 'react-native-snap-carousel';
-import Card from './Card';
+import {Card} from './Card';
+import {Pressable} from 'native-base';
 
 export class CarouselCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
       entries: props.entries,
+      sliderWidth: props.sliderWidth || 300,
+      itemWidth: props.itemWidth || 300,
+      activeIndex: 0,
     };
   }
 
   _renderItem = ({item, index}) => {
-    const props = {
-      imageUrl: item.img_url.replace('http', 'https'),
-      title: item.title,
-      subTitle: item.author.nickname,
-      subscription: '#'.concat(item.tags.join(' #')),
-    };
-
+    const url = item.imageUrl
+      ? item.imageUrl
+      : 'https://source.unsplash.com/400x400/?food';
     return (
-      <Card
-        imageUrl={props.imageUrl}
-        title={props.title}
-        subTitle={props.subTitle}
-        subscription={props.subscription}
-      />
+      <Pressable onPress={() => this.props.onClick(item, index)}>
+        <Card
+          imageUrl={url}
+          title={item.title}
+          subTitle={item.subTitle}
+          description={item.description}
+        />
+      </Pressable>
     );
   };
 
   render() {
-    const {entries} = this.state;
+    const {entries, sliderWidth, itemWidth} = this.state;
 
     return (
       <Carousel
@@ -39,8 +41,9 @@ export class CarouselCard extends Component {
         }}
         data={entries}
         renderItem={this._renderItem}
-        sliderWidth={300}
-        itemWidth={300}
+        sliderWidth={sliderWidth}
+        itemWidth={itemWidth}
+        onSnapToItem={index => this.setState({activeIndex: index})}
       />
     );
   }

@@ -13,6 +13,8 @@ target 'ReactNativeCloneSpoon' do
   )
 
 
+  pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
+
   target 'ReactNativeCloneSpoonTests' do
     inherit! :complete
     # Pods for testing

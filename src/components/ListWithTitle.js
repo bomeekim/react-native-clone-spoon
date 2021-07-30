@@ -19,17 +19,22 @@ export class ListWithTitle extends Component {
             <HStack justifyContent="space-between">
               <HStack alignItems="center">
                 <Heading size="md">{this.state.title}</Heading>
-                <Button
-                  size="sm"
-                  variant="link"
-                  // TODO 더보기 이벤트 연결
-                  onPress={() => console.log('hello world')}>
-                  더보기
-                </Button>
+                {this.state.list.length > 3 && (
+                  <Button
+                    size="sm"
+                    variant="link"
+                    // TODO 더보기 이벤트 연결
+                    onPress={() => console.log('hello world')}>
+                    더보기
+                  </Button>
+                )}
               </HStack>
             </HStack>
             <Center>
-              <CarouselCard entries={this.state.list} />
+              <CarouselCard
+                entries={this.state.list}
+                onClick={this.props.onClick}
+              />
             </Center>
           </VStack>
         </Box>

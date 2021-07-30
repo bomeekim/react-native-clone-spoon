@@ -8,8 +8,14 @@ class Live extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      navigation: props.navigation,
       spoonPickLiveList: [],
-      liveDjRankList: [],
+      topRankingList: [],
+      topRankingCategoryList: [
+        {index: 0, type: 'daily', title: '최근 1일 Top 100'},
+        {index: 1, type: 'weekly', title: '최근 7일 Top 100'},
+        {index: 2, type: 'monthly', title: '이번달 Top 100'},
+      ],
       todayDjInfo: {},
     };
   }
@@ -19,18 +25,19 @@ class Live extends Component {
    * @param dateType 최근 1일(daily), 최근 7일(weekly), 이번 달(monthly)
    * @returns {Promise<void>}
    */
-  async getLiveDjRankListByDateType(dateType) {
+  async getTopRankingListByDateType(dateType) {
     try {
       const {results} = await LIVE_API.RANKS(dateType);
 
       if (!!results && results.length > 0) {
         const {
-          author: {nickname, profile_url, description},
+          author: {id, nickname, profile_url, description},
         } = results[0];
 
         this.setState({
-          liveDjRankList: results,
+          topRankingList: results,
           todayDjInfo: {
+            id,
             nickname,
             imageUrl: profile_url.replace('http', 'https'),
             description,
@@ -53,7 +60,16 @@ class Live extends Component {
       if (!!results && results.length > 0) {
         this.setState({
           isLoading: false,
-          spoonPickLiveList: results,
+          spoonPickLiveList: results.map(obj => {
+            return {
+              imageUrl: obj.img_url.replace('http', 'https'),
+              title: obj.title,
+              subTitle: obj.author.nickname,
+              description: '#'.concat(obj.tags.join(' #')),
+              author: obj.author,
+              id: obj.id,
+            };
+          }),
         });
       }
     } catch (e) {
@@ -61,16 +77,22 @@ class Live extends Component {
     }
   }
 
+  handleSpoonPickLiveListItemClick(item, index) {
+  }
+
+  handleTopRankingListItemClick(item, index) {
+  }
+
   async componentDidMount() {
     // 스푼 파트너, 초이스, pick 라이브 방송 목록 조회
     await this.getSpoonPickLiveList();
 
     // 데일리 라이브 순위 조회
-    await this.getLiveDjRankListByDateType('daily');
+    await this.getTopRankingListByDateType('daily');
   }
 
   render() {
-    const {spoonPickLiveList, todayDjInfo} = this.state;
+    const {spoonPickLiveList, topRankingCategoryList, todayDjInfo} = this.state;
 
     return (
       <>
@@ -83,9 +105,24 @@ class Live extends Component {
           />
         )}
 
+        {/*스푼이 선정한 DJ*/}
         {spoonPickLiveList.length > 0 && (
-          <ListWithTitle title="스푼이 선정한 DJ" list={spoonPickLiveList} />
+          <ListWithTitle
+            title="스푼이 선정한 DJ"
+            list={spoonPickLiveList}
+            onClick={this.handleSpoonPickLiveListItemClick}
+          />
         )}
+
+        {/*인기차트*/}
+        {/*TODO 인기차트로 이동*/}
+        <ListWithTitle
+          title="인기차트"
+          list={topRankingCategoryList}
+          sliderWidth="150"
+          itemWidth="150"
+          onClick={this.handleTopRankingListItemClick}
+        />
       </>
     );
   }
